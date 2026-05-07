@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
-import { Settings2, ShieldCheck, Activity } from 'lucide-react';
+import { Settings2, ShieldCheck, Activity, BookOpen, LayoutDashboard } from 'lucide-react';
 import FileUpload from './components/FileUpload';
 import DashboardStats from './components/DashboardStats';
 import DataTable from './components/DataTable';
 import CustomDropdown from './components/CustomDropdown';
+import GuidePage from './components/GuidePage';
 import { parseFile, processMatching } from './utils/dataProcessor';
 
 function App() {
+  const [activeTab, setActiveTab] = useState('app'); // 'app' or 'guide'
+
   // State for Main Data
   const [mainFile, setMainFile] = useState(null);
   const [mainData, setMainData] = useState([]);
@@ -116,7 +119,7 @@ function App() {
       setMetadataRules(parsed.data);
       setProcessedResult(null);
     } catch (error) {
-      alert("Gagal membaca file Metadata: " + error.message);
+      alert("Gagal membaca file metadata: " + error.message);
     }
   };
 
@@ -153,7 +156,8 @@ function App() {
           totalValid: result.validData.length
         },
         eliminationDetails: result.eliminationDetails,
-        validData: result.validData
+        validData: result.validData,
+        logicErrors: result.logicErrors
       });
       
       setIsProcessing(false);
@@ -163,34 +167,64 @@ function App() {
   return (
     <div className="app-container">
       {/* Header */}
-      <header className="header" style={{ justifyContent: 'center', textAlign: 'center' }}>
+      <header className="header" style={{ justifyContent: 'center', textAlign: 'center', flexDirection: 'column', gap: '1.5rem' }}>
         <div>
           <h1 style={{ justifyContent: 'center' }}>
             <ShieldCheck size={32} color="var(--primary)" /> Sistem Pemadanan Data
           </h1>
           <p>Aplikasi validasi dan penyaringan data berdasarkan ID Unik (Faktor Pengurang).</p>
         </div>
+        
+        {/* Navigation Tabs */}
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem', width: '100%' }}>
+          <button 
+            onClick={() => setActiveTab('app')}
+            style={{ 
+              display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1.5rem', 
+              background: activeTab === 'app' ? '#EFF6FF' : 'transparent', 
+              color: activeTab === 'app' ? 'var(--primary)' : 'var(--text-muted)',
+              border: activeTab === 'app' ? '1px solid var(--primary-light)' : '1px solid transparent',
+              borderRadius: '20px', cursor: 'pointer', fontWeight: 500, transition: 'all 0.2s'
+            }}>
+            <LayoutDashboard size={18} /> Dashboard Aplikasi
+          </button>
+          <button 
+            onClick={() => setActiveTab('guide')}
+            style={{ 
+              display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1.5rem', 
+              background: activeTab === 'guide' ? '#EFF6FF' : 'transparent', 
+              color: activeTab === 'guide' ? 'var(--primary)' : 'var(--text-muted)',
+              border: activeTab === 'guide' ? '1px solid var(--primary-light)' : '1px solid transparent',
+              borderRadius: '20px', cursor: 'pointer', fontWeight: 500, transition: 'all 0.2s'
+            }}>
+            <BookOpen size={18} /> Panduan & Contoh Format
+          </button>
+        </div>
       </header>
 
       {/* Main Content */}
       <main style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
         
-        {/* Upload Section */}
-        <section className="grid-2">
-          {/* Main Data Upload */}
-          <FileUpload 
-            title="Data Sumber Utama" 
-            onUpload={handleMainUpload} 
-            files={mainFile ? [mainFile] : []}
-            onRemove={handleRemoveMain}
-          />
+        {activeTab === 'guide' ? (
+          <GuidePage />
+        ) : (
+          <>
+            {/* Upload Section */}
+            <section className="grid-2">
+              {/* Main Data Upload */}
+              <FileUpload 
+                title="Data Sumber Utama" 
+                onUpload={handleMainUpload} 
+                files={mainFile ? [mainFile] : []}
+                onRemove={handleRemoveMain}
+              />
 
-          {/* Comparative Data Upload */}
-          <FileUpload 
-            title="Data Pembanding (Faktor Pengurang)" 
-            multiple={true}
-            onUpload={handleCompUpload} 
-            files={compFiles}
+              {/* Comparative Data Upload */}
+              <FileUpload 
+                title="Data Pembanding (Faktor Pengurang)" 
+                multiple={true}
+                onUpload={handleCompUpload} 
+                files={compFiles}
             onRemove={handleRemoveComp}
           />
 
@@ -296,6 +330,8 @@ function App() {
               columns={mainColumns} 
             />
           </section>
+        )}
+          </>
         )}
       </main>
     </div>
