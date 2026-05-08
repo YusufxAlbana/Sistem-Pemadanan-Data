@@ -25,3 +25,10 @@ dist-ssr
 
 # Data files (Confidential)
 *.xlsx
+
+# Documentation/Screenshots
+excel file.png
+file gede.png
+image1.png
+jumlah data.png
+saran.png
