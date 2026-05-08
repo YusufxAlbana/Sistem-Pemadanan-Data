@@ -370,6 +370,27 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-muted);
   position: sticky;
   top: 0;
+  z-index: 1;
+}
+
+/* Freeze First Column (Primary Key) */
+.data-table th:first-child,
+.data-table td:first-child {
+  position: sticky;
+  left: 0;
+  border-right: 2px solid var(--border-color);
+}
+
+.data-table th:first-child {
+  z-index: 11;
+  background-color: #F1F5F9;
+}
+
+.data-table td:first-child {
+  z-index: 10;
+  background-color: var(--card-bg);
+  font-weight: 500;
+  color: var(--primary);
 }
 
 .data-table tr:last-child td {
@@ -377,6 +398,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .data-table tbody tr:hover {
+  background-color: #F1F5F9;
+}
+.data-table tbody tr:hover td:first-child {
   background-color: #F1F5F9;
 }
 

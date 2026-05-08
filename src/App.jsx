@@ -15,21 +15,30 @@ function App() {
   const [mainData, setMainData] = useState([]);
   const [mainColumns, setMainColumns] = useState([]);
   const [mainKey, setMainKey] = useState('');
+  const [isParsingMain, setIsParsingMain] = useState(false);
 
   // State for Comparative Data
   const [compFiles, setCompFiles] = useState([]); // [{ file, fileName, data, columns, selectedKey: '' }]
+  const [isParsingComp, setIsParsingComp] = useState(false);
   
   // State for Metadata
   const [metadataFile, setMetadataFile] = useState(null);
   const [metadataRules, setMetadataRules] = useState([]);
+  const [metadataColumns, setMetadataColumns] = useState([]);
+  const [isParsingMeta, setIsParsingMeta] = useState(false);
 
   // State for Processed Data
   const [processedResult, setProcessedResult] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  // App Error State
+  const [appError, setAppError] = useState(null);
 
   // Handlers for Main Data
   const handleMainUpload = async (files) => {
     try {
+      setAppError(null);
+      setIsParsingMain(true);
       const file = files[0];
       const parsed = await parseFile(file);
       setMainFile(file);
@@ -40,7 +49,9 @@ function App() {
       setMainKey(defaultKey || '');
       setProcessedResult(null); // Reset result
     } catch (error) {
-      alert("Gagal membaca file utama: " + error.message);
+      setAppError("Gagal membaca file utama: " + error.message);
+    } finally {
+      setIsParsingMain(false);
     }
   };
 
@@ -50,11 +61,14 @@ function App() {
     setMainColumns([]);
     setMainKey('');
     setProcessedResult(null);
+    setAppError(null);
   };
 
   // Handlers for Comparative Data
   const handleCompUpload = async (files) => {
     try {
+      setAppError(null);
+      setIsParsingComp(true);
       const newCompDataPromises = files.map(async (file) => {
         const parsed = await parseFile(file);
         // Auto map based on current mainKey
@@ -78,13 +92,16 @@ function App() {
       setCompFiles(prev => [...prev, ...newCompData]);
       setProcessedResult(null); // Reset result
     } catch (error) {
-      alert("Gagal membaca file pembanding: " + error.message);
+      setAppError("Gagal membaca file pembanding: " + error.message);
+    } finally {
+      setIsParsingComp(false);
     }
   };
 
   const handleRemoveComp = (index) => {
     setCompFiles(prev => prev.filter((_, i) => i !== index));
     setProcessedResult(null);
+    setAppError(null);
   };
 
   const handleMainKeyChange = (newKey) => {
@@ -113,55 +130,85 @@ function App() {
   // Handlers for Metadata
   const handleMetadataUpload = async (files) => {
     try {
+      setAppError(null);
+      setIsParsingMeta(true);
       const file = files[0];
       const parsed = await parseFile(file);
       setMetadataFile(file);
       setMetadataRules(parsed.data);
+      setMetadataColumns(parsed.columns);
       setProcessedResult(null);
     } catch (error) {
-      alert("Gagal membaca file metadata: " + error.message);
+      setAppError("Gagal membaca file metadata: " + error.message);
+    } finally {
+      setIsParsingMeta(false);
     }
   };
 
   const handleRemoveMetadata = () => {
     setMetadataFile(null);
     setMetadataRules([]);
+    setMetadataColumns([]);
     setProcessedResult(null);
+    setAppError(null);
   };
 
   // Process Data
   const handleProcess = () => {
     if (!mainData.length) return;
     if (!mainKey) {
-      alert("Pilih kolom acuan untuk Data Utama.");
+      setAppError("Validasi Gagal: Silakan pilih kolom acuan (Faktor Pengurang) untuk Data Utama.");
       return;
     }
     
+    setAppError(null);
     setIsProcessing(true);
     
-    // Use timeout to allow UI to update to "processing" state before heavy computation
-    setTimeout(() => {
-      // Create mapping of comp keys
+    try {
       const compKeysMap = {};
       compFiles.forEach(cf => {
         compKeysMap[cf.fileName] = cf.selectedKey;
       });
 
-      const result = processMatching(mainData, compFiles, metadataRules, mainKey, compKeysMap);
+      // Initialize Web Worker for background processing
+      const worker = new Worker(new URL('./utils/matchingWorker.js', import.meta.url), { type: 'module' });
       
-      setProcessedResult({
-        stats: {
-          totalInitial: mainData.length,
-          totalEliminated: result.eliminatedCount,
-          totalValid: result.validData.length
-        },
-        eliminationDetails: result.eliminationDetails,
-        validData: result.validData,
-        logicErrors: result.logicErrors
+      worker.onmessage = (e) => {
+        if (e.data.error) {
+          setAppError("Gagal memproses pencocokan data: " + e.data.error);
+        } else {
+          setProcessedResult({
+            stats: {
+              totalInitial: mainData.length,
+              totalEliminated: e.data.eliminatedCount,
+              totalValid: e.data.validData.length
+            },
+            eliminationDetails: e.data.eliminationDetails,
+            validData: e.data.validData,
+            logicErrors: e.data.logicErrors
+          });
+        }
+        setIsProcessing(false);
+        worker.terminate();
+      };
+
+      worker.onerror = (err) => {
+        setAppError("Terjadi kesalahan sistem yang fatal saat memproses data besar.");
+        setIsProcessing(false);
+        worker.terminate();
+      };
+
+      worker.postMessage({
+        mainData,
+        comparativeDatasets: compFiles,
+        metadataRules,
+        mainKey,
+        compKeys: compKeysMap
       });
-      
+    } catch (err) {
+      setAppError("Gagal memulai proses: " + err.message);
       setIsProcessing(false);
-    }, 500);
+    }
   };
 
   return (
@@ -205,6 +252,18 @@ function App() {
       {/* Main Content */}
       <main style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
         
+        {appError && (
+          <div className="card fade-in" style={{ backgroundColor: '#FEF2F2', borderColor: '#FCA5A5', padding: '1rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#DC2626' }}>
+              <Activity size={20} />
+              <strong>Error:</strong> {appError}
+            </div>
+            <button onClick={() => setAppError(null)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#DC2626' }}>
+              <X size={18} />
+            </button>
+          </div>
+        )}
+
         {activeTab === 'guide' ? (
           <GuidePage />
         ) : (
@@ -216,7 +275,10 @@ function App() {
                 title="Data Sumber Utama" 
                 onUpload={handleMainUpload} 
                 files={mainFile ? [mainFile] : []}
+                columns={mainColumns}
+                isParsing={isParsingMain}
                 onRemove={handleRemoveMain}
+                onError={setAppError}
               />
 
               {/* Comparative Data Upload */}
@@ -225,27 +287,32 @@ function App() {
                 multiple={true}
                 onUpload={handleCompUpload} 
                 files={compFiles}
-            onRemove={handleRemoveComp}
-          />
+                isParsing={isParsingComp}
+                onRemove={handleRemoveComp}
+                onError={setAppError}
+              />
 
-          {/* Metadata Upload */}
-          <div style={{ gridColumn: '1 / -1' }}>
-            <FileUpload 
-              title="Lampiran Metadata (Aturan & Validasi)" 
-              onUpload={handleMetadataUpload} 
-              files={metadataFile ? [metadataFile] : []}
-              onRemove={handleRemoveMetadata}
-            />
-          </div>
-        </section>
+              {/* Metadata Upload */}
+              <div style={{ gridColumn: '1 / -1' }}>
+                <FileUpload 
+                  title="Lampiran Metadata (Aturan & Validasi)" 
+                  onUpload={handleMetadataUpload} 
+                  files={metadataFile ? [metadataFile] : []}
+                  columns={metadataColumns}
+                  isParsing={isParsingMeta}
+                  onRemove={handleRemoveMetadata}
+                  onError={setAppError}
+                />
+              </div>
+            </section>
 
-        {/* Configuration Section */}
-        {(mainFile || compFiles.length > 0) && (
-          <section className="card fade-in">
-            <h3 className="card-title">
-              <Settings2 size={20} />
-              Konfigurasi Filter Pencocokan
-            </h3>
+            {/* Configuration Section */}
+            {(mainFile || compFiles.length > 0) && (
+              <section className="card fade-in">
+                <h3 className="card-title">
+                  <Settings2 size={20} />
+                  Konfigurasi Filter Pencocokan
+                </h3>
             
             <div className="grid-2" style={{ marginTop: '1.5rem' }}>
               {/* Main Data Config */}
@@ -328,6 +395,7 @@ function App() {
             <DataTable 
               data={processedResult.validData} 
               columns={mainColumns} 
+              primaryKey={mainKey}
             />
           </section>
         )}

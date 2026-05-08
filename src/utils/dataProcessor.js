@@ -3,7 +3,7 @@ import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
-// Parse File (CSV or XLSX) to JSON
+// Parse File (CSV or XLSX) to JSON using Web Workers
 export const parseFile = async (file) => {
   const extension = file.name.split('.').pop().toLowerCase();
   
@@ -12,6 +12,7 @@ export const parseFile = async (file) => {
       Papa.parse(file, {
         header: true,
         skipEmptyLines: true,
+        worker: true, // Enable Web Worker to prevent UI freeze
         complete: (results) => {
           resolve({
             data: results.data,
@@ -28,22 +29,23 @@ export const parseFile = async (file) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         try {
-          const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: 'array' });
-          const firstSheetName = workbook.SheetNames[0];
-          const worksheet = workbook.Sheets[firstSheetName];
-          const json = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
-          
-          if (json.length === 0) {
-            resolve({ data: [], columns: [] });
-            return;
-          }
-          
-          const columns = Object.keys(json[0]);
-          resolve({
-            data: json,
-            columns: columns
-          });
+          const worker = new Worker(new URL('./xlsxWorker.js', import.meta.url), { type: 'module' });
+          worker.onmessage = (msgEvent) => {
+            if (msgEvent.data.error) {
+              reject(new Error(msgEvent.data.error));
+            } else {
+              resolve({
+                data: msgEvent.data.data,
+                columns: msgEvent.data.columns
+              });
+            }
+            worker.terminate(); // Clean up worker
+          };
+          worker.onerror = (err) => {
+            reject(err);
+            worker.terminate();
+          };
+          worker.postMessage(e.target.result); // Send ArrayBuffer to worker
         } catch (err) {
           reject(err);
         }

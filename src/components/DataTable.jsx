@@ -2,9 +2,16 @@ import React, { useState } from 'react';
 import { Download, FileDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { exportToExcel, exportToPDF } from '../utils/dataProcessor';
 
-const DataTable = ({ data, columns }) => {
+const DataTable = ({ data, columns, primaryKey }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
+
+  // Reorder columns so primaryKey is always the first column
+  const displayColumns = React.useMemo(() => {
+    if (!primaryKey || !columns.includes(primaryKey)) return columns;
+    const filtered = columns.filter(c => c !== primaryKey);
+    return [primaryKey, ...filtered];
+  }, [columns, primaryKey]);
 
   if (!data || data.length === 0) {
     return (
@@ -36,7 +43,7 @@ const DataTable = ({ data, columns }) => {
           </button>
           <button 
             className="btn btn-outline" 
-            onClick={() => exportToPDF(data, columns)}
+            onClick={() => exportToPDF(data, displayColumns)}
             title="Export PDF"
           >
             <Download size={16} color="var(--danger)" /> PDF
@@ -48,7 +55,7 @@ const DataTable = ({ data, columns }) => {
         <table className="data-table">
           <thead>
             <tr>
-              {columns.map((col, index) => (
+              {displayColumns.map((col, index) => (
                 <th key={index}>{col.replace(/_/g, ' ').toUpperCase()}</th>
               ))}
             </tr>
@@ -56,7 +63,7 @@ const DataTable = ({ data, columns }) => {
           <tbody key={currentPage} className="page-transition">
             {currentRows.map((row, rowIndex) => (
               <tr key={rowIndex}>
-                {columns.map((col, colIndex) => (
+                {displayColumns.map((col, colIndex) => (
                   <td key={colIndex}>{row[col]}</td>
                 ))}
               </tr>
