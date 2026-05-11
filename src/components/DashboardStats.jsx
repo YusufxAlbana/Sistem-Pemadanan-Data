@@ -7,18 +7,26 @@ import { Users, FileMinus, CheckCircle } from 'lucide-react';
 
 const COLORS = ['#10B981', '#EF4444', '#F59E0B', '#3B82F6', '#6366F1'];
 
-const DashboardStats = ({ stats, eliminationDetails }) => {
+const DashboardStats = ({ stats, eliminationDetails, processMode }) => {
   const { totalInitial, totalEliminated, totalValid } = stats;
 
-  const pieData = [
-    { name: 'Data Valid', value: totalValid },
-    { name: 'Data Tereliminasi', value: totalEliminated },
-  ];
+  const isMerge = processMode === 'merge';
+  const totalMerged = eliminationDetails.reduce((acc, curr) => acc + (curr.merged || 0), 0);
+
+  const pieData = isMerge 
+    ? [
+        { name: 'Total Data Induk', value: totalInitial },
+        { name: 'Total Penggabungan', value: totalMerged },
+      ]
+    : [
+        { name: 'Data Valid', value: totalValid },
+        { name: 'Data Tereliminasi', value: totalEliminated },
+      ];
 
   const barData = eliminationDetails.map(detail => ({
     name: detail.fileName.length > 15 ? detail.fileName.substring(0, 15) + '...' : detail.fileName,
     full_name: detail.fileName,
-    'Jumlah Eliminasi': detail.eliminated
+    'Jumlah Terpengaruh': isMerge ? detail.merged : detail.eliminated
   }));
 
   return (
@@ -33,26 +41,32 @@ const DashboardStats = ({ stats, eliminationDetails }) => {
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon danger"><FileMinus size={24} /></div>
+          <div className={`stat-icon ${isMerge ? 'success' : 'danger'}`}>
+             {isMerge ? <CheckCircle size={24} /> : <FileMinus size={24} />}
+          </div>
           <div className="stat-content">
-            <h4>Total Tereliminasi</h4>
-            <div className="stat-value" style={{ color: 'var(--danger)' }}>{totalEliminated}</div>
+            <h4>{isMerge ? 'Total Penggabungan' : 'Total Tereliminasi'}</h4>
+            <div className="stat-value" style={{ color: isMerge ? 'var(--success)' : 'var(--danger)' }}>
+              {isMerge ? totalMerged : totalEliminated}
+            </div>
           </div>
         </div>
-        <div className="stat-card">
-          <div className="stat-icon success"><CheckCircle size={24} /></div>
-          <div className="stat-content">
-            <h4>Total Data Valid</h4>
-            <div className="stat-value" style={{ color: 'var(--success)' }}>{totalValid}</div>
+        {!isMerge && (
+          <div className="stat-card">
+            <div className="stat-icon success"><CheckCircle size={24} /></div>
+            <div className="stat-content">
+              <h4>Total Data Valid</h4>
+              <div className="stat-value" style={{ color: 'var(--success)' }}>{totalValid}</div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Charts */}
       {totalInitial > 0 && (
         <div className="grid-2">
           <div className="card">
-            <h3 className="card-title">Persentase Validasi</h3>
+            <h3 className="card-title">{isMerge ? 'Persentase Penggabungan' : 'Persentase Validasi'}</h3>
             <div style={{ height: 300 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -76,7 +90,7 @@ const DashboardStats = ({ stats, eliminationDetails }) => {
           </div>
 
           <div className="card">
-            <h3 className="card-title">Eliminasi per File Pembanding</h3>
+            <h3 className="card-title">{isMerge ? 'Penggabungan per File Sumber' : 'Eliminasi per File Pembanding'}</h3>
             <div style={{ height: 300 }}>
               {barData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
@@ -84,7 +98,7 @@ const DashboardStats = ({ stats, eliminationDetails }) => {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <XAxis dataKey="name" fontSize={12} />
                     <YAxis allowDecimals={false} />
-                    <Bar dataKey="Jumlah Eliminasi" fill="#EF4444" radius={[4, 4, 0, 0]}>
+                    <Bar dataKey="Jumlah Terpengaruh" fill={isMerge ? "#10B981" : "#EF4444"} radius={[4, 4, 0, 0]}>
                       {barData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[(index + 1) % COLORS.length]} />
                       ))}

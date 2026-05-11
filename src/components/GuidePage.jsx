@@ -22,6 +22,49 @@ const GuidePage = () => {
         </div>
       </section>
 
+      {/* Rekomendasi Batas Ukuran File (RAM) */}
+      <section id="ram-guide" className="card" style={{ borderColor: '#F59E0B', borderLeft: '4px solid #F59E0B' }}>
+        <h3 className="card-title" style={{ color: '#D97706', fontSize: '1.2rem', marginBottom: '1rem' }}>
+          <Info size={20} /> Rekomendasi Ukuran File Maksimal (Berdasarkan RAM)
+        </h3>
+        <p style={{ fontSize: '0.95rem', color: 'var(--text-main)', marginBottom: '1rem' }}>
+          Karena aplikasi ini memproses data langsung di perangkat Anda tanpa menggunakan server (untuk menjamin keamanan data), kinerja sistem sangat bergantung pada <strong>Kapasitas RAM</strong> perangkat Anda. Berikut adalah rekomendasi ukuran maksimal agar browser tidak <em>crash</em> atau <em>hang</em>:
+        </p>
+        <div className="table-container">
+          <table className="data-table" style={{ minWidth: '100%' }}>
+            <thead>
+              <tr style={{ backgroundColor: '#FEF3C7' }}>
+                <th style={{ color: '#92400E' }}>Kapasitas RAM</th>
+                <th style={{ color: '#92400E' }}>Rekomendasi Beban Maksimal</th>
+                <th style={{ color: '#92400E' }}>Catatan Performa</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>4 GB</strong></td>
+                <td>~50 MB (atau ~100 ribu baris)</td>
+                <td>Sangat disarankan untuk memecah file menjadi beberapa bagian kecil.</td>
+              </tr>
+              <tr>
+                <td><strong>8 GB</strong></td>
+                <td>~200 MB (atau ~500 ribu baris)</td>
+                <td>Batas optimal. Tutup tab browser lain yang tidak terpakai untuk kelancaran.</td>
+              </tr>
+              <tr>
+                <td><strong>16 GB</strong></td>
+                <td>~500 MB (atau ~1 juta baris)</td>
+                <td>Sangat lancar, namun proses baca file (parsing) mungkin butuh beberapa detik.</td>
+              </tr>
+              <tr>
+                <td><strong>32 GB atau lebih</strong></td>
+                <td>&gt; 1 GB (Lebih dari 2 juta baris)</td>
+                <td>Mampu menangani data super besar. Tunggu hingga indikator loading selesai.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       {/* Contoh Format Data */}
       <section>
         <h3 style={{ marginBottom: '1.5rem', color: 'var(--primary)', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>

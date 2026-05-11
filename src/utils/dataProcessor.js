@@ -196,3 +196,48 @@ export const exportToPDF = (data, columns, filename = 'Data_Valid.pdf') => {
 
   doc.save(filename);
 };
+
+// Export to CSV
+export const exportToCSV = (data, filename = 'Data_Valid.csv') => {
+  const csv = Papa.unparse(data);
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  link.setAttribute('href', url);
+  link.setAttribute('download', filename);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
+// Export to SQL
+export const exportToSQL = (data, tableName = 'data_valid', filename = 'Data_Valid.sql') => {
+  if (!data || data.length === 0) return;
+  const columns = Object.keys(data[0]);
+  let sqlString = '';
+
+  data.forEach(row => {
+    const values = columns.map(col => {
+      let val = row[col];
+      if (val === null || val === undefined) return 'NULL';
+      if (typeof val === 'string') {
+        // Escape single quotes
+        val = val.replace(/'/g, "''");
+        return `'${val}'`;
+      }
+      return val;
+    });
+    sqlString += `INSERT INTO ${tableName} (${columns.join(', ')}) VALUES (${values.join(', ')});\n`;
+  });
+
+  const blob = new Blob([sqlString], { type: 'text/sql;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  link.setAttribute('href', url);
+  link.setAttribute('download', filename);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};

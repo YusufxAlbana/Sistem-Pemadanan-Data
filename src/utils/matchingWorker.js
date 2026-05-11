@@ -2,47 +2,79 @@
 
 self.onmessage = (e) => {
   try {
-    const { mainData, comparativeDatasets, metadataRules, mainKey, compKeys } = e.data;
+    const { mainData, comparativeDatasets, metadataRules, mainKey, compKeys, processMode } = e.data;
     
     if (!mainData || mainData.length === 0) {
-      self.postMessage({ validData: [], eliminatedCount: 0, eliminationDetails: [], logicErrors: [] });
+      self.postMessage({ validData: [], eliminatedCount: 0, eliminationDetails: [], logicErrors: [], resultColumns: [] });
       return;
     }
 
     let validData = [...mainData];
     let eliminatedCount = 0;
     const logicErrors = [];
+    let resultColumns = Object.keys(mainData[0] || {});
     
-    // Logika Perbandingan / Pengurangan (Faktor Pengurang)
+    // Logika Perbandingan / Penggabungan
     const eliminationDetails = comparativeDatasets.map(ds => ({
       fileName: ds.fileName,
-      eliminated: 0
+      eliminated: 0,
+      merged: 0
     }));
 
-    comparativeDatasets.forEach((dataset, index) => {
-      const compKeyForThisDataset = compKeys[dataset.fileName];
-      if (!compKeyForThisDataset) return; // Skip if no key selected for this dataset
-
-      // Simpan semua value yang relevan di Set dengan trim dan toLowerCase untuk keakuratan 100%
-      const compValuesSet = new Set(dataset.data.map(row => String(row[compKeyForThisDataset]).trim().toLowerCase()));
-
-      const newValidData = [];
-      
-      validData.forEach(mainRow => {
-        const mainVal = String(mainRow[mainKey]).trim().toLowerCase();
+    if (processMode === 'merge') {
+      comparativeDatasets.forEach((dataset, index) => {
+        const compKeyForThisDataset = compKeys[dataset.fileName];
+        if (!compKeyForThisDataset) return;
         
-        if (compValuesSet.has(mainVal)) {
-          // Matched, so it's eliminated
-          eliminatedCount++;
-          eliminationDetails[index].eliminated++;
-        } else {
-          // Not matched, keep it
-          newValidData.push(mainRow);
+        // Add new columns to resultColumns
+        if (dataset.data.length > 0) {
+           const newCols = Object.keys(dataset.data[0]).filter(col => !resultColumns.includes(col));
+           resultColumns = [...resultColumns, ...newCols];
         }
-      });
 
-      validData = newValidData;
-    });
+        const compMap = new Map();
+        dataset.data.forEach(row => {
+          const keyVal = String(row[compKeyForThisDataset]).trim().toLowerCase();
+          if (!compMap.has(keyVal)) {
+            compMap.set(keyVal, row);
+          }
+        });
+
+        validData = validData.map(mainRow => {
+          const mainVal = String(mainRow[mainKey]).trim().toLowerCase();
+          if (compMap.has(mainVal)) {
+            eliminationDetails[index].merged++;
+            return { ...mainRow, ...compMap.get(mainVal) };
+          }
+          return mainRow;
+        });
+      });
+    } else {
+      comparativeDatasets.forEach((dataset, index) => {
+        const compKeyForThisDataset = compKeys[dataset.fileName];
+        if (!compKeyForThisDataset) return; // Skip if no key selected for this dataset
+
+        // Simpan semua value yang relevan di Set dengan trim dan toLowerCase untuk keakuratan 100%
+        const compValuesSet = new Set(dataset.data.map(row => String(row[compKeyForThisDataset]).trim().toLowerCase()));
+
+        const newValidData = [];
+        
+        validData.forEach(mainRow => {
+          const mainVal = String(mainRow[mainKey]).trim().toLowerCase();
+          
+          if (compValuesSet.has(mainVal)) {
+            // Matched, so it's eliminated
+            eliminatedCount++;
+            eliminationDetails[index].eliminated++;
+          } else {
+            // Not matched, keep it
+            newValidData.push(mainRow);
+          }
+        });
+
+        validData = newValidData;
+      });
+    }
     
     // Validasi Tipe Data berdasarkan Metadata
     if (metadataRules && metadataRules.length > 0) {
@@ -95,7 +127,8 @@ self.onmessage = (e) => {
       validData,
       eliminatedCount,
       eliminationDetails,
-      logicErrors
+      logicErrors,
+      resultColumns
     });
   } catch (error) {
     self.postMessage({ error: error.message });

@@ -9,6 +9,7 @@ import { parseFile, processMatching } from './utils/dataProcessor';
 
 function App() {
   const [activeTab, setActiveTab] = useState('app'); // 'app' or 'guide'
+  const [processMode, setProcessMode] = useState('eliminate'); // 'eliminate' or 'merge'
 
   // State for Main Data
   const [mainFile, setMainFile] = useState(null);
@@ -185,7 +186,8 @@ function App() {
             },
             eliminationDetails: e.data.eliminationDetails,
             validData: e.data.validData,
-            logicErrors: e.data.logicErrors
+            logicErrors: e.data.logicErrors,
+            resultColumns: e.data.resultColumns
           });
         }
         setIsProcessing(false);
@@ -203,7 +205,8 @@ function App() {
         comparativeDatasets: compFiles,
         metadataRules,
         mainKey,
-        compKeys: compKeysMap
+        compKeys: compKeysMap,
+        processMode
       });
     } catch (err) {
       setAppError("Gagal memulai proses: " + err.message);
@@ -279,6 +282,7 @@ function App() {
                 isParsing={isParsingMain}
                 onRemove={handleRemoveMain}
                 onError={setAppError}
+                onGoToGuide={() => setActiveTab('guide')}
               />
 
               {/* Comparative Data Upload */}
@@ -290,6 +294,7 @@ function App() {
                 isParsing={isParsingComp}
                 onRemove={handleRemoveComp}
                 onError={setAppError}
+                onGoToGuide={() => setActiveTab('guide')}
               />
 
               {/* Metadata Upload */}
@@ -348,7 +353,32 @@ function App() {
               )}
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '2rem', gap: '1.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-color)', padding: '0.5rem', borderRadius: '50px', border: '1px solid var(--border-color)', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                <button
+                  onClick={() => setProcessMode('eliminate')}
+                  style={{
+                    padding: '0.5rem 1.5rem', borderRadius: '50px', border: 'none', cursor: 'pointer',
+                    background: processMode === 'eliminate' ? 'var(--primary)' : 'transparent',
+                    color: processMode === 'eliminate' ? 'white' : 'var(--text-muted)',
+                    fontWeight: processMode === 'eliminate' ? 600 : 400, transition: 'all 0.3s'
+                  }}
+                >
+                  Mode Eliminasi (Hapus Ganda)
+                </button>
+                <button
+                  onClick={() => setProcessMode('merge')}
+                  style={{
+                    padding: '0.5rem 1.5rem', borderRadius: '50px', border: 'none', cursor: 'pointer',
+                    background: processMode === 'merge' ? 'var(--primary)' : 'transparent',
+                    color: processMode === 'merge' ? 'white' : 'var(--text-muted)',
+                    fontWeight: processMode === 'merge' ? 600 : 400, transition: 'all 0.3s'
+                  }}
+                >
+                  Mode Gabungan (Tambah Kolom)
+                </button>
+              </div>
+
               <button 
                 className="btn btn-primary" 
                 onClick={handleProcess}
@@ -374,6 +404,7 @@ function App() {
             <DashboardStats 
               stats={processedResult.stats} 
               eliminationDetails={processedResult.eliminationDetails} 
+              processMode={processMode}
             />
             
             {processedResult.logicErrors && processedResult.logicErrors.length > 0 && (
@@ -394,7 +425,7 @@ function App() {
 
             <DataTable 
               data={processedResult.validData} 
-              columns={mainColumns} 
+              columns={processedResult.resultColumns || mainColumns} 
               primaryKey={mainKey}
             />
           </section>

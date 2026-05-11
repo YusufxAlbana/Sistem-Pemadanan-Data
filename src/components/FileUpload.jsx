@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Upload, X, FileText, Loader2 } from 'lucide-react';
 
-const FileUpload = ({ title, multiple = false, onUpload, files, columns = [], isParsing = false, onRemove, onError }) => {
+const FileUpload = ({ title, multiple = false, onUpload, files, columns = [], isParsing = false, onRemove, onError, onGoToGuide }) => {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -69,10 +69,20 @@ const FileUpload = ({ title, multiple = false, onUpload, files, columns = [], is
 
   return (
     <div className="card fade-in">
-      <h3 className="card-title">
-        <Upload size={20} />
-        {title}
-      </h3>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <h3 className="card-title" style={{ marginBottom: 0 }}>
+          <Upload size={20} />
+          {title}
+        </h3>
+        {onGoToGuide && (
+          <button 
+            onClick={onGoToGuide}
+            style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}
+          >
+            Cek Rekomendasi Ukuran File (RAM)
+          </button>
+        )}
+      </div>
       
       <div 
         className={`upload-zone ${isDragging ? 'drag-active' : ''}`}
