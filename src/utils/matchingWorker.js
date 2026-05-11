@@ -2,7 +2,7 @@
 
 self.onmessage = (e) => {
   try {
-    const { mainData, comparativeDatasets, metadataRules, mainKey, compKeys, processMode } = e.data;
+    const { mainData, comparativeDatasets, metadataRules, mainKey, compKeys } = e.data;
     
     if (!mainData || mainData.length === 0) {
       self.postMessage({ validData: [], eliminatedCount: 0, eliminationDetails: [], logicErrors: [], resultColumns: [] });
@@ -14,67 +14,36 @@ self.onmessage = (e) => {
     const logicErrors = [];
     let resultColumns = Object.keys(mainData[0] || {});
     
-    // Logika Perbandingan / Penggabungan
     const eliminationDetails = comparativeDatasets.map(ds => ({
       fileName: ds.fileName,
-      eliminated: 0,
-      merged: 0
+      eliminated: 0
     }));
 
-    if (processMode === 'merge') {
-      comparativeDatasets.forEach((dataset, index) => {
-        const compKeyForThisDataset = compKeys[dataset.fileName];
-        if (!compKeyForThisDataset) return;
+    // Logika Eliminasi
+    comparativeDatasets.forEach((dataset, index) => {
+      const compKeyForThisDataset = compKeys[dataset.fileName];
+      if (!compKeyForThisDataset) return; // Skip if no key selected for this dataset
+
+      // Simpan semua value yang relevan di Set dengan trim dan toLowerCase untuk keakuratan 100%
+      const compValuesSet = new Set(dataset.data.map(row => String(row[compKeyForThisDataset]).trim().toLowerCase()));
+
+      const newValidData = [];
+      
+      validData.forEach(mainRow => {
+        const mainVal = String(mainRow[mainKey]).trim().toLowerCase();
         
-        // Add new columns to resultColumns
-        if (dataset.data.length > 0) {
-           const newCols = Object.keys(dataset.data[0]).filter(col => !resultColumns.includes(col));
-           resultColumns = [...resultColumns, ...newCols];
+        if (compValuesSet.has(mainVal)) {
+          // Matched, so it's eliminated
+          eliminatedCount++;
+          eliminationDetails[index].eliminated++;
+        } else {
+          // Not matched, keep it
+          newValidData.push(mainRow);
         }
-
-        const compMap = new Map();
-        dataset.data.forEach(row => {
-          const keyVal = String(row[compKeyForThisDataset]).trim().toLowerCase();
-          if (!compMap.has(keyVal)) {
-            compMap.set(keyVal, row);
-          }
-        });
-
-        validData = validData.map(mainRow => {
-          const mainVal = String(mainRow[mainKey]).trim().toLowerCase();
-          if (compMap.has(mainVal)) {
-            eliminationDetails[index].merged++;
-            return { ...mainRow, ...compMap.get(mainVal) };
-          }
-          return mainRow;
-        });
       });
-    } else {
-      comparativeDatasets.forEach((dataset, index) => {
-        const compKeyForThisDataset = compKeys[dataset.fileName];
-        if (!compKeyForThisDataset) return; // Skip if no key selected for this dataset
 
-        // Simpan semua value yang relevan di Set dengan trim dan toLowerCase untuk keakuratan 100%
-        const compValuesSet = new Set(dataset.data.map(row => String(row[compKeyForThisDataset]).trim().toLowerCase()));
-
-        const newValidData = [];
-        
-        validData.forEach(mainRow => {
-          const mainVal = String(mainRow[mainKey]).trim().toLowerCase();
-          
-          if (compValuesSet.has(mainVal)) {
-            // Matched, so it's eliminated
-            eliminatedCount++;
-            eliminationDetails[index].eliminated++;
-          } else {
-            // Not matched, keep it
-            newValidData.push(mainRow);
-          }
-        });
-
-        validData = newValidData;
-      });
-    }
+      validData = newValidData;
+    });
     
     // Validasi Tipe Data berdasarkan Metadata
     if (metadataRules && metadataRules.length > 0) {

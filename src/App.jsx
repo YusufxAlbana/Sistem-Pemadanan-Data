@@ -9,7 +9,7 @@ import { parseFile, processMatching } from './utils/dataProcessor';
 
 function App() {
   const [activeTab, setActiveTab] = useState('app'); // 'app' or 'guide'
-  const [processMode, setProcessMode] = useState('eliminate'); // 'eliminate' or 'merge'
+
 
   // State for Main Data
   const [mainFile, setMainFile] = useState(null);
@@ -205,8 +205,7 @@ function App() {
         comparativeDatasets: compFiles,
         metadataRules,
         mainKey,
-        compKeys: compKeysMap,
-        processMode
+        compKeys: compKeysMap
       });
     } catch (err) {
       setAppError("Gagal memulai proses: " + err.message);
@@ -354,30 +353,6 @@ function App() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '2rem', gap: '1.5rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-color)', padding: '0.5rem', borderRadius: '50px', border: '1px solid var(--border-color)', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
-                <button
-                  onClick={() => setProcessMode('eliminate')}
-                  style={{
-                    padding: '0.5rem 1.5rem', borderRadius: '50px', border: 'none', cursor: 'pointer',
-                    background: processMode === 'eliminate' ? 'var(--primary)' : 'transparent',
-                    color: processMode === 'eliminate' ? 'white' : 'var(--text-muted)',
-                    fontWeight: processMode === 'eliminate' ? 600 : 400, transition: 'all 0.3s'
-                  }}
-                >
-                  Mode Eliminasi (Hapus Ganda)
-                </button>
-                <button
-                  onClick={() => setProcessMode('merge')}
-                  style={{
-                    padding: '0.5rem 1.5rem', borderRadius: '50px', border: 'none', cursor: 'pointer',
-                    background: processMode === 'merge' ? 'var(--primary)' : 'transparent',
-                    color: processMode === 'merge' ? 'white' : 'var(--text-muted)',
-                    fontWeight: processMode === 'merge' ? 600 : 400, transition: 'all 0.3s'
-                  }}
-                >
-                  Mode Gabungan (Tambah Kolom)
-                </button>
-              </div>
 
               <button 
                 className="btn btn-primary" 
@@ -404,7 +379,6 @@ function App() {
             <DashboardStats 
               stats={processedResult.stats} 
               eliminationDetails={processedResult.eliminationDetails} 
-              processMode={processMode}
             />
             
             {processedResult.logicErrors && processedResult.logicErrors.length > 0 && (
