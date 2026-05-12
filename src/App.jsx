@@ -27,6 +27,7 @@ function App() {
   const [metadataRules, setMetadataRules] = useState([]);
   const [metadataColumns, setMetadataColumns] = useState([]);
   const [isParsingMeta, setIsParsingMeta] = useState(false);
+  const [showMetadata, setShowMetadata] = useState(false);
 
   // State for Processed Data
   const [processedResult, setProcessedResult] = useState(null);
@@ -203,7 +204,7 @@ function App() {
       worker.postMessage({
         mainData,
         comparativeDatasets: compFiles,
-        metadataRules,
+        metadataRules: showMetadata ? metadataRules : [],
         mainKey,
         compKeys: compKeysMap
       });
@@ -296,18 +297,46 @@ function App() {
                 onGoToGuide={() => setActiveTab('guide')}
               />
 
-              {/* Metadata Upload */}
-              <div style={{ gridColumn: '1 / -1' }}>
-                <FileUpload 
-                  title="Lampiran Metadata (Aturan & Validasi)" 
-                  onUpload={handleMetadataUpload} 
-                  files={metadataFile ? [metadataFile] : []}
-                  columns={metadataColumns}
-                  isParsing={isParsingMeta}
-                  onRemove={handleRemoveMetadata}
-                  onError={setAppError}
-                />
+              {/* Metadata Toggle & Upload */}
+              <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem', background: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', fontWeight: 500, color: 'var(--text-main)', margin: 0 }}>
+                  <div style={{ position: 'relative', display: 'inline-block', width: '40px', height: '24px' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={showMetadata}
+                      onChange={(e) => setShowMetadata(e.target.checked)}
+                      style={{ opacity: 0, width: 0, height: 0, position: 'absolute' }} 
+                    />
+                    <span style={{
+                      position: 'absolute', cursor: 'pointer', top: 0, left: 0, right: 0, bottom: 0,
+                      backgroundColor: showMetadata ? 'var(--success)' : '#CBD5E1',
+                      transition: '.4s', borderRadius: '24px'
+                    }}>
+                      <span style={{
+                        position: 'absolute', content: '""', height: '18px', width: '18px',
+                        left: showMetadata ? '19px' : '3px', bottom: '3px',
+                        backgroundColor: 'white', transition: '.4s', borderRadius: '50%'
+                      }}></span>
+                    </span>
+                  </div>
+                  Aktifkan Validasi Metadata (Opsional)
+                </label>
+                <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>- Tambahkan file kamus data untuk audit kualitas otomatis.</span>
               </div>
+
+              {showMetadata && (
+                <div style={{ gridColumn: '1 / -1' }} className="fade-in-down">
+                  <FileUpload 
+                    title="Lampiran Metadata (Aturan & Validasi) - Opsional" 
+                    onUpload={handleMetadataUpload} 
+                    files={metadataFile ? [metadataFile] : []}
+                    columns={metadataColumns}
+                    isParsing={isParsingMeta}
+                    onRemove={handleRemoveMetadata}
+                    onError={setAppError}
+                  />
+                </div>
+              )}
             </section>
 
             {/* Configuration Section */}
