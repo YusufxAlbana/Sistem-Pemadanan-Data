@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, Table, FileSpreadsheet, ListChecks, CheckCircle2, Info } from 'lucide-react';
+import { BookOpen, Table, FileSpreadsheet, ListChecks, CheckCircle2, Info, FileWarning } from 'lucide-react';
 
 const GuidePage = () => {
   return (
@@ -11,13 +11,13 @@ const GuidePage = () => {
           <BookOpen size={24} /> Panduan Penggunaan Sistem
         </h2>
         <p style={{ color: 'var(--text-main)', lineHeight: '1.6', marginBottom: '1rem' }}>
-          Sistem Pemadanan Data ini dirancang untuk mencocokkan data penduduk berdasarkan Nomor Identitas (seperti NIK atau Nomor KK). Aplikasi ini memiliki dua fungsi utama: <strong>Validasi (Eliminasi)</strong> untuk menyaring/menghapus data yang cocok, dan <strong>Pemadanan (Integrasi)</strong> untuk mempertahankan data namun memberi tanda khusus jika cocok.
+          Sistem Pemadanan Data ini dirancang untuk mencocokkan data massal berdasarkan Kunci Utama (seperti NIK atau Nomor KK). Aplikasi ini memiliki dua fungsi utama: <strong>Validasi (Eliminasi)</strong> untuk menyaring/menghapus data yang bentrok, dan <strong>Pemadanan (Integrasi)</strong> untuk melabeli data tanpa menghapusnya.
         </p>
         <div style={{ backgroundColor: '#EFF6FF', borderLeft: '4px solid var(--primary-light)', padding: '1rem', borderRadius: '4px', display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
           <Info size={20} color="var(--primary-light)" style={{ flexShrink: 0, marginTop: '2px' }} />
           <div>
             <h4 style={{ margin: 0, marginBottom: '0.25rem', color: 'var(--primary-light)' }}>Privasi & Keamanan Data Terjamin</h4>
-            <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-muted)' }}>Seluruh proses pemadanan data dilakukan sepenuhnya di dalam <em>browser</em> Anda tanpa dikirim ke server luar. Contoh data yang ditampilkan di halaman ini hanyalah <strong>data buatan (dummy)</strong> yang tidak merepresentasikan penduduk asli.</p>
+            <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-muted)' }}>Seluruh proses pemadanan data dilakukan sepenuhnya di dalam <em>browser</em> Anda tanpa dikirim ke server luar. Data NIK/KK yang ditampilkan di halaman panduan ini telah <strong>disensor</strong> (menggunakan tanda bintang ****) untuk alasan keamanan simulasi.</p>
           </div>
         </div>
       </section>
@@ -65,67 +65,49 @@ const GuidePage = () => {
         </div>
       </section>
 
-      {/* Contoh Format Data */}
+      {/* Studi Kasus & Alur Kerja */}
       <section>
         <h3 style={{ marginBottom: '1.5rem', color: 'var(--primary)', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
-          Contoh Format Data (Data Fiktif)
+          Contoh Kasus: Penyaluran Bantuan Sosial (Bansos)
         </h3>
+        <p style={{ marginBottom: '1.5rem', color: 'var(--text-muted)' }}>
+          <strong>Skenario:</strong> Dinas Sosial memiliki "Daftar Usulan Penerima Bansos Baru" (Data Utama). Namun, mereka harus memastikan bahwa orang-orang di daftar ini <strong>belum pernah menerima</strong> Bansos PKH sebelumnya (Data Pembanding). Mari kita lihat alur kerjanya.
+        </p>
 
         {/* Tabel Utama */}
         <div className="card" style={{ marginBottom: '1.5rem' }}>
           <h4 className="card-title" style={{ fontSize: '1.1rem' }}>
-            <Table size={18} /> 1. Data Sumber Utama (Contoh: Tabel Individu)
+            <Table size={18} /> 1. Data Sumber Utama (Daftar Usulan Penerima Baru)
           </h4>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Data mentah penduduk yang ingin dibersihkan atau disaring. Berisi rincian lengkap anggota keluarga.</p>
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Ini adalah data mentah yang diunggah ke sistem. Terdiri dari warga yang diusulkan mendapat bantuan.</p>
           <div className="table-container">
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>nomor_induk_kependudukan</th>
-                  <th>nomor_kartu_keluarga</th>
-                  <th>nama</th>
-                  <th>jenis_kelamin</th>
-                  <th>status_keluarga</th>
-                  <th>pekerjaan</th>
-                  <th>pendidikan</th>
+                  <th>nik</th>
+                  <th>nama_lengkap</th>
+                  <th>alamat</th>
+                  <th>status_pekerjaan</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>3171011122223333</td>
-                  <td>3171999988887777</td>
+                  <td>320101112222****</td>
+                  <td>Ahmad Fauzi</td>
+                  <td>Jl. Merdeka No. 10</td>
+                  <td>Buruh Harian</td>
+                </tr>
+                <tr>
+                  <td>320101334444****</td>
+                  <td>Siti Nurhaliza</td>
+                  <td>Jl. Melati No. 5</td>
+                  <td>Pedagang Kecil</td>
+                </tr>
+                <tr>
+                  <td>320102556666****</td>
                   <td>Budi Santoso</td>
-                  <td>Laki-laki</td>
-                  <td>1 (Kepala Keluarga)</td>
-                  <td>Wiraswasta</td>
-                  <td>S1</td>
-                </tr>
-                <tr>
-                  <td>3171011122224444</td>
-                  <td>3171999988887777</td>
-                  <td>Siti Aminah</td>
-                  <td>Perempuan</td>
-                  <td>2 (Istri)</td>
-                  <td>Mengurus Rumah Tangga</td>
-                  <td>SMA</td>
-                </tr>
-                <tr>
-                  <td>3171011122225555</td>
-                  <td>3171999988887777</td>
-                  <td>Andi Santoso</td>
-                  <td>Laki-laki</td>
-                  <td>3 (Anak)</td>
-                  <td>Pelajar</td>
-                  <td>SD</td>
-                </tr>
-                <tr>
-                  <td>3171022233334444</td>
-                  <td>3171999911112222</td>
-                  <td>Hendra Gunawan</td>
-                  <td>Laki-laki</td>
-                  <td>1 (Kepala Keluarga)</td>
-                  <td>Pegawai Swasta</td>
-                  <td>S1</td>
+                  <td>Jl. Mawar No. 12</td>
+                  <td>Tidak Bekerja</td>
                 </tr>
               </tbody>
             </table>
@@ -135,103 +117,115 @@ const GuidePage = () => {
         {/* Tabel Pembanding */}
         <div className="card" style={{ marginBottom: '1.5rem' }}>
           <h4 className="card-title" style={{ fontSize: '1.1rem' }}>
-            <FileSpreadsheet size={18} /> 2. Data Pembanding (Contoh: Tabel Keluarga / BPJS)
+            <FileSpreadsheet size={18} /> 2. Data Pembanding (Daftar Penerima Bansos Lama / PKH)
           </h4>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Data yang digunakan sebagai acuan pengurang. Jika data utama ditemukan di tabel ini, maka akan dicoret/dieliminasi.</p>
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Data ini berfungsi sebagai "Faktor Pengurang". Siapapun yang ada di tabel ini, akan dicoret atau ditandai oleh sistem.</p>
           <div className="table-container">
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>nomor_kartu_keluarga</th>
-                  <th>jumlah_anggota</th>
-                  <th>alamat_lengkap</th>
-                  <th>kode_pos</th>
-                  <th>status_aktif</th>
+                  <th>nik_penerima_pkh</th>
+                  <th>periode_bantuan</th>
+                  <th>jumlah_dana</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>3171999988887777</td>
-                  <td>3</td>
-                  <td>Jl. Kebon Jeruk No. 12, Jakarta</td>
-                  <td>11530</td>
-                  <td>Aktif</td>
+                  <td>320101112222****</td>
+                  <td>Januari 2026</td>
+                  <td>Rp 600.000</td>
                 </tr>
               </tbody>
             </table>
           </div>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-main)', marginTop: '1rem', background: '#F8FAFC', padding: '0.75rem', borderRadius: '4px' }}>
+            <strong>Catatan:</strong> Pada konfigurasi sistem nanti, Anda cukup memilih kolom <code>nik</code> pada Data Utama dan menyandingkannya dengan kolom <code>nik_penerima_pkh</code> pada Data Pembanding.
+          </p>
         </div>
 
-        {/* Metadata */}
-        <div className="card" style={{ marginBottom: '1.5rem' }}>
-          <h4 className="card-title" style={{ fontSize: '1.1rem' }}>
-            <ListChecks size={18} /> 3. Lampiran Metadata (Kamus Data)
+        {/* Penjelasan Validasi Metadata */}
+        <div className="card" style={{ marginBottom: '1.5rem', borderColor: '#8B5CF6', borderLeft: '4px solid #8B5CF6' }}>
+          <h4 className="card-title" style={{ fontSize: '1.1rem', color: '#8B5CF6' }}>
+            <ListChecks size={18} /> 3. Fungsi "Aktifkan Validasi Metadata (Opsional)"
           </h4>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Opsional: Digunakan oleh sistem sebagai pedoman untuk mengecek apakah ada kesalahan pengetikan (Typo) pada isian data utama.</p>
-          <div className="table-container">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Nama variabel</th>
-                  <th>Datatype</th>
-                  <th>Keterangan</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>nomor_induk_kependudukan</td>
-                  <td>character varying</td>
-                  <td>16 Digit angka identitas</td>
-                </tr>
-                <tr>
-                  <td>jumlah_anggota_keluarga</td>
-                  <td>integer</td>
-                  <td>Harus berupa angka bulat</td>
-                </tr>
-                <tr>
-                  <td>tanggal_lahir</td>
-                  <td>date</td>
-                  <td>Format YYYY-MM-DD</td>
-                </tr>
-              </tbody>
-            </table>
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-main)', marginBottom: '1rem', lineHeight: '1.6' }}>
+            <strong>Apa itu Metadata?</strong> Metadata adalah file Excel/CSV tambahan yang berisi "Kamus Aturan". Fitur ini sangat berguna sebagai <em>Quality Control</em> otomatis untuk mendeteksi salah ketik (typo) atau data anomali di lapangan.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ backgroundColor: '#F5F3FF', padding: '1rem', borderRadius: '8px' }}>
+              <h5 style={{ margin: '0 0 0.5rem 0', color: '#6D28D9' }}>Contoh File Kamus Aturan (Metadata):</h5>
+              <div className="table-container">
+                <table className="data-table" style={{ fontSize: '0.8rem' }}>
+                  <thead>
+                    <tr>
+                      <th>Nama variabel</th>
+                      <th>Datatype</th>
+                      <th>Keterangan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>nik</td>
+                      <td>character varying</td>
+                      <td>Harus berjumlah 16 Digit angka</td>
+                    </tr>
+                    <tr>
+                      <td>status_pekerjaan</td>
+                      <td>string</td>
+                      <td>Tidak boleh kosong</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', margin: 0, lineHeight: '1.6' }}>
+              <strong>Bagaimana Sistem Bekerja?</strong><br/>
+              Jika Anda mengunggah file Metadata di atas, sistem akan mengecek isi Data Utama Anda. Jika ditemukan NIK yang jumlahnya hanya 14 digit (karena petugas salah ketik), sistem <strong>tidak akan membatalkan pemadanan</strong>, melainkan akan memunculkan spanduk peringatan merah di akhir proses yang berbunyi: <em>"Peringatan: 1 baris memiliki NIK tidak standar (Kurang dari 16 digit)"</em>. Fitur ini sangat membantu auditor dalam membersihkan data kotor.
+            </p>
           </div>
         </div>
 
-        {/* Contoh Output */}
-        <div className="card" style={{ borderColor: 'var(--success)', borderLeft: '4px solid var(--success)', marginBottom: '1.5rem' }}>
-          <h4 className="card-title" style={{ fontSize: '1.1rem', color: 'var(--success)' }}>
-            <CheckCircle2 size={18} /> Contoh Hasil Akhir - Mode Validasi (Eliminasi)
+        <h3 style={{ marginTop: '2.5rem', marginBottom: '1.5rem', color: 'var(--primary)', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+          Hasil Akhir Berdasarkan Mode yang Dipilih
+        </h3>
+
+        {/* Contoh Output Eliminasi */}
+        <div className="card" style={{ borderColor: 'var(--danger)', borderLeft: '4px solid var(--danger)', marginBottom: '1.5rem' }}>
+          <h4 className="card-title" style={{ fontSize: '1.1rem', color: 'var(--danger)' }}>
+            <FileWarning size={18} /> Hasil Jika Menggunakan "Mode Validasi (Eliminasi)"
           </h4>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
-            Jika kolom acuan yang dipilih adalah <strong>nomor_kartu_keluarga</strong>, maka keluarga Budi Santoso akan dieliminasi karena nomor KK-nya terdaftar di Data Pembanding. Hasil yang tersisa dan dianggap valid hanyalah:
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1rem', lineHeight: '1.6' }}>
+            Sistem akan secara agresif membuang data yang saling bentrok. Karena NIK <strong>Ahmad Fauzi</strong> ditemukan di Data Pembanding (artinya ia sudah pernah dapat PKH), maka datanya <strong>dihapus total</strong> dari daftar usulan. Hasil unduhan Anda nanti hanya menyisakan warga yang benar-benar bersih:
           </p>
           <div className="table-container">
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>nomor_induk_kependudukan</th>
-                  <th>nomor_kartu_keluarga</th>
-                  <th>nama</th>
-                  <th>pekerjaan</th>
+                  <th>nik</th>
+                  <th>nama_lengkap</th>
+                  <th>alamat</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>3171022233334444</td>
-                  <td>3171999911112222</td>
-                  <td>Hendra Gunawan</td>
-                  <td>Pegawai Swasta</td>
+                  <td>320101334444****</td>
+                  <td>Siti Nurhaliza</td>
+                  <td>Jl. Melati No. 5</td>
+                </tr>
+                <tr>
+                  <td>320102556666****</td>
+                  <td>Budi Santoso</td>
+                  <td>Jl. Mawar No. 12</td>
                 </tr>
               </tbody>
             </table>
           </div>
           <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
              <div style={{ background: '#FEE2E2', padding: '0.5rem 1rem', borderRadius: '4px', fontSize: '0.875rem', color: '#B91C1C' }}>
-               <strong>Dieliminasi:</strong> 3 Data (Keluarga Budi Santoso)
+               <strong>Dieliminasi:</strong> 1 Data (Ahmad Fauzi terdeteksi ganda)
              </div>
              <div style={{ background: '#DCFCE7', padding: '0.5rem 1rem', borderRadius: '4px', fontSize: '0.875rem', color: '#15803D' }}>
-               <strong>Sisa Valid:</strong> 1 Data (Hendra Gunawan)
+               <strong>Sisa Valid:</strong> 2 Data Siap Diproses
              </div>
           </div>
         </div>
@@ -239,50 +233,39 @@ const GuidePage = () => {
         {/* Contoh Output Integrasi */}
         <div className="card" style={{ borderColor: '#0EA5E9', borderLeft: '4px solid #0EA5E9' }}>
           <h4 className="card-title" style={{ fontSize: '1.1rem', color: '#0EA5E9' }}>
-            <CheckCircle2 size={18} /> Contoh Hasil Akhir - Mode Pemadanan (Integrasi)
+            <CheckCircle2 size={18} /> Hasil Jika Menggunakan "Mode Pemadanan (Integrasi)"
           </h4>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
-            Pada mode ini, tidak ada data yang dihapus. Sistem mempertahankan semua data, dan menambahkan kolom <code style={{background: '#E2E8F0', padding: '2px 4px', borderRadius: '4px'}}>is_integrated</code>. Baris yang ditandai warna <span style={{ background: '#DCFCE7', color: '#15803D', padding: '2px 6px', borderRadius: '4px' }}>Hijau Terang</span> adalah data yang cocok dengan Acuan.
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1rem', lineHeight: '1.6' }}>
+            Pada mode ini, <strong>tidak ada data yang dihapus</strong>. Sistem mempertahankan semua usulan data awal dari Dinas Sosial, namun menanamkan sebuah kolom indikator baru bernama <code style={{background: '#E2E8F0', padding: '2px 4px', borderRadius: '4px'}}>is_integrated</code> di tabel hasil akhir. Mode ini cocok jika Anda hanya ingin melihat "siapa saja yang ganda" tanpa kehilangan data aslinya.
           </p>
           <div className="table-container">
             <table className="data-table">
               <thead>
                 <tr>
                   <th>is_integrated</th>
-                  <th>nomor_induk_kependudukan</th>
-                  <th>nomor_kartu_keluarga</th>
-                  <th>nama</th>
-                  <th>pekerjaan</th>
+                  <th>nik</th>
+                  <th>nama_lengkap</th>
+                  <th>alamat</th>
                 </tr>
               </thead>
               <tbody>
                 <tr style={{ backgroundColor: '#DCFCE7' }}>
-                  <td><span style={{ background: '#22C55E', color: 'white', padding: '4px 10px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 600 }}>1 (Terintegrasi)</span></td>
-                  <td>3171011122223333</td>
-                  <td>3171999988887777</td>
-                  <td>Budi Santoso</td>
-                  <td>Wiraswasta</td>
-                </tr>
-                <tr style={{ backgroundColor: '#DCFCE7' }}>
-                  <td><span style={{ background: '#22C55E', color: 'white', padding: '4px 10px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 600 }}>1 (Terintegrasi)</span></td>
-                  <td>3171011122224444</td>
-                  <td>3171999988887777</td>
-                  <td>Siti Aminah</td>
-                  <td>Mengurus Rumah Tangga</td>
-                </tr>
-                <tr style={{ backgroundColor: '#DCFCE7' }}>
-                  <td><span style={{ background: '#22C55E', color: 'white', padding: '4px 10px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 600 }}>1 (Terintegrasi)</span></td>
-                  <td>3171011122225555</td>
-                  <td>3171999988887777</td>
-                  <td>Andi Santoso</td>
-                  <td>Pelajar</td>
+                  <td><span style={{ background: '#22C55E', color: 'white', padding: '4px 10px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 600 }}>1 (Bantuan Ganda)</span></td>
+                  <td>320101112222****</td>
+                  <td>Ahmad Fauzi</td>
+                  <td>Jl. Merdeka No. 10</td>
                 </tr>
                 <tr>
-                  <td><span style={{ background: '#94A3B8', color: 'white', padding: '4px 10px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 600 }}>0 (Belum)</span></td>
-                  <td>3171022233334444</td>
-                  <td>3171999911112222</td>
-                  <td>Hendra Gunawan</td>
-                  <td>Pegawai Swasta</td>
+                  <td><span style={{ background: '#94A3B8', color: 'white', padding: '4px 10px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 600 }}>0 (Aman)</span></td>
+                  <td>320101334444****</td>
+                  <td>Siti Nurhaliza</td>
+                  <td>Jl. Melati No. 5</td>
+                </tr>
+                <tr>
+                  <td><span style={{ background: '#94A3B8', color: 'white', padding: '4px 10px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 600 }}>0 (Aman)</span></td>
+                  <td>320102556666****</td>
+                  <td>Budi Santoso</td>
+                  <td>Jl. Mawar No. 12</td>
                 </tr>
               </tbody>
             </table>
