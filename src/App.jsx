@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
-import { Settings2, ShieldCheck, Activity, BookOpen, LayoutDashboard, X, Info } from 'lucide-react';
+import { Routes, Route, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { Settings2, ShieldCheck, Activity, BookOpen, LayoutDashboard, X, Info, MessageSquare } from 'lucide-react';
 import FileUpload from './components/FileUpload';
 import DashboardStats from './components/DashboardStats';
 import DataTable from './components/DataTable';
 import CustomDropdown from './components/CustomDropdown';
 import GuidePage from './components/GuidePage';
 import InfoPage from './components/InfoPage';
+import FeedbackPage from './components/FeedbackPage';
 import { parseFile, processMatching } from './utils/dataProcessor';
 
 function App() {
-  const [activeTab, setActiveTab] = useState('app'); // 'app' or 'guide'
-
+  const location = useLocation();
+  const navigate = useNavigate();
 
   // State for Main Data
   const [mainFile, setMainFile] = useState(null);
@@ -227,29 +229,37 @@ function App() {
         </div>
         
         <nav className="sidebar-menu">
-          <button 
-            className={`sidebar-item ${activeTab === 'app' ? 'active' : ''}`}
-            onClick={() => setActiveTab('app')}
+          <NavLink 
+            to="/"
+            className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
           >
             <LayoutDashboard size={20} />
             <span>Halaman Utama</span>
-          </button>
+          </NavLink>
           
-          <button 
-            className={`sidebar-item ${activeTab === 'guide' ? 'active' : ''}`}
-            onClick={() => setActiveTab('guide')}
+          <NavLink 
+            to="/panduan"
+            className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
           >
             <BookOpen size={20} />
             <span>Panduan & Format</span>
-          </button>
+          </NavLink>
 
-          <button 
-            className={`sidebar-item ${activeTab === 'info' ? 'active' : ''}`}
-            onClick={() => setActiveTab('info')}
+          <NavLink 
+            to="/informasi"
+            className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
           >
             <Info size={20} />
             <span>Informasi Sistem</span>
-          </button>
+          </NavLink>
+
+          <NavLink 
+            to="/saran"
+            className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
+          >
+            <MessageSquare size={20} />
+            <span>Saran & Kritik</span>
+          </NavLink>
         </nav>
       </aside>
 
@@ -260,15 +270,18 @@ function App() {
           <header className="header" style={{ borderBottom: 'none', paddingBottom: 0, marginBottom: '0.5rem' }}>
             <div>
               <h1>
-                {activeTab === 'app' ? 'Dashboard Pemadanan Data' : 
-                 activeTab === 'guide' ? 'Panduan Penggunaan Sistem' : 
+                {location.pathname === '/' ? 'Dashboard Pemadanan Data' : 
+                 location.pathname === '/panduan' ? 'Panduan Penggunaan Sistem' : 
+                 location.pathname === '/saran' ? 'Saran & Kritik' :
                  'Tentang Sistem Pemadanan Data'}
               </h1>
               <p>
-                {activeTab === 'app' 
+                {location.pathname === '/' 
                   ? 'Aplikasi validasi dan penyaringan data berdasarkan ID Unik (Faktor Pengurang).' 
-                  : activeTab === 'guide' 
+                  : location.pathname === '/panduan' 
                   ? 'Pelajari cara menggunakan sistem dan format file yang didukung.'
+                  : location.pathname === '/saran'
+                  ? 'Kirimkan masukan atau laporan bug langsung ke tim pengembang.'
                   : 'Pelajari latar belakang, visi, misi, dan berbagai skenario penggunaan sistem.'}
               </p>
             </div>
@@ -289,12 +302,12 @@ function App() {
           </div>
         )}
 
-        {activeTab === 'info' ? (
-          <InfoPage />
-        ) : activeTab === 'guide' ? (
-          <GuidePage />
-        ) : (
-          <>
+        <Routes>
+          <Route path="/informasi" element={<InfoPage />} />
+          <Route path="/panduan" element={<GuidePage />} />
+          <Route path="/saran" element={<FeedbackPage />} />
+          <Route path="/" element={
+            <>
             {/* Processing Mode Selection - Moved to Top */}
             <section className="card fade-in" style={{ borderColor: 'var(--primary)', borderTop: '4px solid var(--primary)' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', flexDirection: 'column' }}>
@@ -355,7 +368,7 @@ function App() {
                 isParsing={isParsingMain}
                 onRemove={handleRemoveMain}
                 onError={setAppError}
-                onGoToGuide={() => setActiveTab('guide')}
+                onGoToGuide={() => navigate('/panduan')}
               />
 
               {/* Comparative Data Upload */}
@@ -367,7 +380,7 @@ function App() {
                 isParsing={isParsingComp}
                 onRemove={handleRemoveComp}
                 onError={setAppError}
-                onGoToGuide={() => setActiveTab('guide')}
+                onGoToGuide={() => navigate('/panduan')}
               />
 
               {/* Metadata Toggle & Upload */}
@@ -508,7 +521,8 @@ function App() {
           </section>
         )}
           </>
-        )}
+          } />
+        </Routes>
         </main>
         </div>
       </div>

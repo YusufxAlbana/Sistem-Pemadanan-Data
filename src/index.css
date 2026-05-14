@@ -95,6 +95,13 @@ h1, h2, h3, h4, h5, h6 {
   background: transparent;
   width: 100%;
   text-align: left;
+  text-decoration: none;
+  outline: none;
+}
+
+.sidebar-item:focus,
+.sidebar-item:active {
+  outline: none;
 }
 
 .sidebar-item:hover {
