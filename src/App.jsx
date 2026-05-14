@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Settings2, ShieldCheck, Activity, BookOpen, LayoutDashboard, X } from 'lucide-react';
+import { Settings2, ShieldCheck, Activity, BookOpen, LayoutDashboard, X, Info } from 'lucide-react';
 import FileUpload from './components/FileUpload';
 import DashboardStats from './components/DashboardStats';
 import DataTable from './components/DataTable';
 import CustomDropdown from './components/CustomDropdown';
 import GuidePage from './components/GuidePage';
+import InfoPage from './components/InfoPage';
 import { parseFile, processMatching } from './utils/dataProcessor';
 
 function App() {
@@ -241,6 +242,14 @@ function App() {
             <BookOpen size={20} />
             <span>Panduan & Format</span>
           </button>
+
+          <button 
+            className={`sidebar-item ${activeTab === 'info' ? 'active' : ''}`}
+            onClick={() => setActiveTab('info')}
+          >
+            <Info size={20} />
+            <span>Informasi Sistem</span>
+          </button>
         </nav>
       </aside>
 
@@ -251,12 +260,16 @@ function App() {
           <header className="header" style={{ borderBottom: 'none', paddingBottom: 0, marginBottom: '0.5rem' }}>
             <div>
               <h1>
-                {activeTab === 'app' ? 'Dashboard Pemadanan Data' : 'Panduan Penggunaan Sistem'}
+                {activeTab === 'app' ? 'Dashboard Pemadanan Data' : 
+                 activeTab === 'guide' ? 'Panduan Penggunaan Sistem' : 
+                 'Tentang Sistem Pemadanan Data'}
               </h1>
               <p>
                 {activeTab === 'app' 
                   ? 'Aplikasi validasi dan penyaringan data berdasarkan ID Unik (Faktor Pengurang).' 
-                  : 'Pelajari cara menggunakan sistem dan format file yang didukung.'}
+                  : activeTab === 'guide' 
+                  ? 'Pelajari cara menggunakan sistem dan format file yang didukung.'
+                  : 'Pelajari latar belakang, visi, misi, dan berbagai skenario penggunaan sistem.'}
               </p>
             </div>
           </header>
@@ -276,7 +289,9 @@ function App() {
           </div>
         )}
 
-        {activeTab === 'guide' ? (
+        {activeTab === 'info' ? (
+          <InfoPage />
+        ) : activeTab === 'guide' ? (
           <GuidePage />
         ) : (
           <>
