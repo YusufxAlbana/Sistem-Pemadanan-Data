@@ -7,18 +7,19 @@ import { Users, FileMinus, CheckCircle } from 'lucide-react';
 
 const COLORS = ['#10B981', '#EF4444', '#F59E0B', '#3B82F6', '#6366F1'];
 
-const DashboardStats = ({ stats, eliminationDetails }) => {
+const DashboardStats = ({ stats, eliminationDetails, processingMode }) => {
   const { totalInitial, totalEliminated, totalValid } = stats;
+  const isIntegration = processingMode === 'integration';
 
   const pieData = [
-    { name: 'Data Valid', value: totalValid },
-    { name: 'Data Tereliminasi', value: totalEliminated },
+    { name: isIntegration ? 'Belum Terintegrasi' : 'Data Valid', value: totalValid },
+    { name: isIntegration ? 'Sudah Terintegrasi' : 'Data Tereliminasi', value: totalEliminated },
   ];
 
   const barData = eliminationDetails.map(detail => ({
     name: detail.fileName.length > 15 ? detail.fileName.substring(0, 15) + '...' : detail.fileName,
     full_name: detail.fileName,
-    'Jumlah Tereliminasi': detail.eliminated
+    [isIntegration ? 'Jumlah Terintegrasi' : 'Jumlah Tereliminasi']: detail.eliminated
   }));
 
   return (
@@ -33,12 +34,12 @@ const DashboardStats = ({ stats, eliminationDetails }) => {
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon danger">
-            <FileMinus size={24} />
+          <div className="stat-icon danger" style={isIntegration ? { color: '#0EA5E9', backgroundColor: '#E0F2FE' } : {}}>
+            <FileMinus size={24} color={isIntegration ? '#0EA5E9' : undefined} />
           </div>
           <div className="stat-content">
-            <h4>Total Tereliminasi</h4>
-            <div className="stat-value" style={{ color: 'var(--danger)' }}>
+            <h4>{isIntegration ? 'Total Terintegrasi' : 'Total Tereliminasi'}</h4>
+            <div className="stat-value" style={{ color: isIntegration ? '#0EA5E9' : 'var(--danger)' }}>
               {totalEliminated}
             </div>
           </div>
@@ -46,7 +47,7 @@ const DashboardStats = ({ stats, eliminationDetails }) => {
         <div className="stat-card">
           <div className="stat-icon success"><CheckCircle size={24} /></div>
           <div className="stat-content">
-            <h4>Total Data Valid</h4>
+            <h4>{isIntegration ? 'Belum Terintegrasi' : 'Total Data Valid'}</h4>
             <div className="stat-value" style={{ color: 'var(--success)' }}>{totalValid}</div>
           </div>
         </div>
@@ -80,7 +81,7 @@ const DashboardStats = ({ stats, eliminationDetails }) => {
           </div>
 
           <div className="card">
-            <h3 className="card-title">Eliminasi per File Pembanding</h3>
+            <h3 className="card-title">{isIntegration ? 'Integrasi per File Acuan' : 'Eliminasi per File Pembanding'}</h3>
             <div style={{ height: 300 }}>
               {barData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
@@ -88,7 +89,7 @@ const DashboardStats = ({ stats, eliminationDetails }) => {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <XAxis dataKey="name" fontSize={12} />
                     <YAxis allowDecimals={false} />
-                    <Bar dataKey="Jumlah Tereliminasi" fill="#EF4444" radius={[4, 4, 0, 0]}>
+                    <Bar dataKey={isIntegration ? "Jumlah Terintegrasi" : "Jumlah Tereliminasi"} fill={isIntegration ? "#0EA5E9" : "#EF4444"} radius={[4, 4, 0, 0]}>
                       {barData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[(index + 1) % COLORS.length]} />
                       ))}

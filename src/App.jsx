@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings2, ShieldCheck, Activity, BookOpen, LayoutDashboard } from 'lucide-react';
+import { Settings2, ShieldCheck, Activity, BookOpen, LayoutDashboard, X } from 'lucide-react';
 import FileUpload from './components/FileUpload';
 import DashboardStats from './components/DashboardStats';
 import DataTable from './components/DataTable';
@@ -32,6 +32,7 @@ function App() {
   // State for Processed Data
   const [processedResult, setProcessedResult] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [processingMode, setProcessingMode] = useState('elimination'); // 'elimination' or 'integration'
   
   // App Error State
   const [appError, setAppError] = useState(null);
@@ -206,7 +207,8 @@ function App() {
         comparativeDatasets: compFiles,
         metadataRules: showMetadata ? metadataRules : [],
         mainKey,
-        compKeys: compKeysMap
+        compKeys: compKeysMap,
+        processingMode
       });
     } catch (err) {
       setAppError("Gagal memulai proses: " + err.message);
@@ -215,42 +217,49 @@ function App() {
   };
 
   return (
-    <div className="app-container">
-      {/* Header */}
-      <header className="header" style={{ justifyContent: 'center', textAlign: 'center', flexDirection: 'column', gap: '1.5rem' }}>
-        <div>
-          <h1 style={{ justifyContent: 'center' }}>
-            <ShieldCheck size={32} color="var(--primary)" /> Sistem Pemadanan Data
-          </h1>
-          <p>Aplikasi validasi dan penyaringan data berdasarkan ID Unik (Faktor Pengurang).</p>
+    <div className="app-wrapper">
+      {/* Sidebar Navigation */}
+      <aside className="sidebar">
+        <div className="sidebar-brand">
+          <ShieldCheck size={28} color="var(--primary)" /> 
+          <span>DataMatch</span>
         </div>
         
-        {/* Navigation Tabs */}
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem', width: '100%' }}>
+        <nav className="sidebar-menu">
           <button 
+            className={`sidebar-item ${activeTab === 'app' ? 'active' : ''}`}
             onClick={() => setActiveTab('app')}
-            style={{ 
-              display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1.5rem', 
-              background: activeTab === 'app' ? '#EFF6FF' : 'transparent', 
-              color: activeTab === 'app' ? 'var(--primary)' : 'var(--text-muted)',
-              border: activeTab === 'app' ? '1px solid var(--primary-light)' : '1px solid transparent',
-              borderRadius: '20px', cursor: 'pointer', fontWeight: 500, transition: 'all 0.2s'
-            }}>
-            <LayoutDashboard size={18} /> Dashboard Aplikasi
+          >
+            <LayoutDashboard size={20} />
+            <span>Halaman Utama</span>
           </button>
+          
           <button 
+            className={`sidebar-item ${activeTab === 'guide' ? 'active' : ''}`}
             onClick={() => setActiveTab('guide')}
-            style={{ 
-              display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1.5rem', 
-              background: activeTab === 'guide' ? '#EFF6FF' : 'transparent', 
-              color: activeTab === 'guide' ? 'var(--primary)' : 'var(--text-muted)',
-              border: activeTab === 'guide' ? '1px solid var(--primary-light)' : '1px solid transparent',
-              borderRadius: '20px', cursor: 'pointer', fontWeight: 500, transition: 'all 0.2s'
-            }}>
-            <BookOpen size={18} /> Panduan & Contoh Format
+          >
+            <BookOpen size={20} />
+            <span>Panduan & Format</span>
           </button>
-        </div>
-      </header>
+        </nav>
+      </aside>
+
+      {/* Main Content Area */}
+      <div className="main-content">
+        <div className="app-container">
+          {/* Header */}
+          <header className="header" style={{ borderBottom: 'none', paddingBottom: 0, marginBottom: '0.5rem' }}>
+            <div>
+              <h1>
+                {activeTab === 'app' ? 'Dashboard Pemadanan Data' : 'Panduan Penggunaan Sistem'}
+              </h1>
+              <p>
+                {activeTab === 'app' 
+                  ? 'Aplikasi validasi dan penyaringan data berdasarkan ID Unik (Faktor Pengurang).' 
+                  : 'Pelajari cara menggunakan sistem dan format file yang didukung.'}
+              </p>
+            </div>
+          </header>
 
       {/* Main Content */}
       <main style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -271,6 +280,51 @@ function App() {
           <GuidePage />
         ) : (
           <>
+            {/* Processing Mode Selection - Moved to Top */}
+            <section className="card fade-in" style={{ borderColor: 'var(--primary)', borderTop: '4px solid var(--primary)' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', flexDirection: 'column' }}>
+                <h3 className="card-title" style={{ margin: 0 }}>
+                  <Settings2 size={20} />
+                  Pilih Mode Pemrosesan Sistem
+                </h3>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', margin: 0, marginBottom: '1rem' }}>
+                  Silakan pilih bagaimana sistem harus menangani data utama jika ditemukan kecocokan dengan data pembanding.
+                </p>
+
+                <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', width: '100%' }}>
+                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', cursor: 'pointer', padding: '1rem', border: processingMode === 'elimination' ? '2px solid var(--primary)' : '1px solid var(--border-color)', borderRadius: '8px', backgroundColor: processingMode === 'elimination' ? '#EFF6FF' : 'transparent', flex: '1', minWidth: '250px', transition: 'all 0.2s' }}>
+                    <input 
+                      type="radio" 
+                      name="processingModeTop" 
+                      value="elimination" 
+                      checked={processingMode === 'elimination'} 
+                      onChange={(e) => { setProcessingMode(e.target.value); setProcessedResult(null); }}
+                      style={{ marginTop: '0.25rem' }}
+                    />
+                    <div>
+                      <strong style={{ display: 'block', color: 'var(--text-main)', marginBottom: '0.25rem', fontSize: '1.05rem' }}>Mode Validasi (Eliminasi)</strong>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Data utama yang terdeteksi ada di data pembanding akan <strong>dihapus/dieliminasi</strong> dari hasil akhir.</span>
+                    </div>
+                  </label>
+                  
+                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', cursor: 'pointer', padding: '1rem', border: processingMode === 'integration' ? '2px solid #0EA5E9' : '1px solid var(--border-color)', borderRadius: '8px', backgroundColor: processingMode === 'integration' ? '#E0F2FE' : 'transparent', flex: '1', minWidth: '250px', transition: 'all 0.2s' }}>
+                    <input 
+                      type="radio" 
+                      name="processingModeTop" 
+                      value="integration" 
+                      checked={processingMode === 'integration'} 
+                      onChange={(e) => { setProcessingMode(e.target.value); setProcessedResult(null); }}
+                      style={{ marginTop: '0.25rem' }}
+                    />
+                    <div>
+                      <strong style={{ display: 'block', color: 'var(--text-main)', marginBottom: '0.25rem', fontSize: '1.05rem' }}>Mode Pemadanan (Integrasi)</strong>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Semua data dipertahankan. Baris yang cocok akan diberi status khusus (<code style={{background: 'rgba(0,0,0,0.05)', padding: '2px 4px', borderRadius: '4px'}}>is_integrated</code>).</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </section>
+
             {/* Upload Section */}
             <section className="grid-2">
               {/* Main Data Upload */}
@@ -342,12 +396,12 @@ function App() {
             {/* Configuration Section */}
             {(mainFile || compFiles.length > 0) && (
               <section className="card fade-in">
-                <h3 className="card-title">
+                <h3 className="card-title" style={{ marginBottom: '1.5rem' }}>
                   <Settings2 size={20} />
                   Konfigurasi Filter Pencocokan
                 </h3>
-            
-            <div className="grid-2" style={{ marginTop: '1.5rem' }}>
+
+            <div className="grid-2">
               {/* Main Data Config */}
               {mainFile && (
                 <div style={{ padding: '1rem', background: 'var(--bg-color)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
@@ -408,6 +462,7 @@ function App() {
             <DashboardStats 
               stats={processedResult.stats} 
               eliminationDetails={processedResult.eliminationDetails} 
+              processingMode={processingMode}
             />
             
             {processedResult.logicErrors && processedResult.logicErrors.length > 0 && (
@@ -435,7 +490,9 @@ function App() {
         )}
           </>
         )}
-      </main>
+        </main>
+        </div>
+      </div>
     </div>
   );
 }

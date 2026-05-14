@@ -114,13 +114,30 @@ const DataTable = ({ data, columns, primaryKey }) => {
             </tr>
           </thead>
           <tbody key={currentPage} className="page-transition">
-            {currentRows.map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                {displayColumns.map((col, colIndex) => (
-                  <td key={colIndex}>{row[col]}</td>
-                ))}
-              </tr>
-            ))}
+            {currentRows.map((row, rowIndex) => {
+              const isIntegrated = row.is_integrated === 1;
+              const rowStyle = isIntegrated ? { backgroundColor: '#DCFCE7' } : {};
+
+              return (
+                <tr key={rowIndex} style={rowStyle}>
+                  {displayColumns.map((col, colIndex) => {
+                    const cellValue = row[col];
+                    if (col === 'is_integrated') {
+                      return (
+                        <td key={colIndex}>
+                          {cellValue === 1 ? (
+                            <span style={{ background: '#22C55E', color: 'white', padding: '4px 10px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 600 }}>1 (Terintegrasi)</span>
+                          ) : (
+                            <span style={{ background: '#94A3B8', color: 'white', padding: '4px 10px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 600 }}>0 (Belum)</span>
+                          )}
+                        </td>
+                      );
+                    }
+                    return <td key={colIndex}>{cellValue}</td>;
+                  })}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

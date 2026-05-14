@@ -59,18 +59,21 @@ export const parseFile = async (file) => {
 };
 
 // Main Processing Logic (Faktor Pengurang & Logic Validation)
-export const processMatching = (mainData, comparativeDatasets, metadataRules, mainKey, compKeys) => {
+export const processMatching = (mainData, comparativeDatasets, metadataRules, mainKey, compKeys, processingMode = 'elimination') => {
   if (!mainData || mainData.length === 0) return { validData: [], eliminatedCount: 0, eliminationDetails: [], logicErrors: [] };
 
   let validData = [...mainData];
   let eliminatedCount = 0;
   const logicErrors = []; // Array of { rowIndex, message }
   
-  // Logika Perbandingan / Pengurangan (Faktor Pengurang)
   const eliminationDetails = comparativeDatasets.map(ds => ({
     fileName: ds.fileName,
     eliminated: 0
   }));
+
+  if (processingMode === 'integration') {
+    validData = validData.map(row => ({ ...row, is_integrated: 0 }));
+  }
 
   comparativeDatasets.forEach((dataset, index) => {
     const compKeyForThisDataset = compKeys[dataset.fileName];
@@ -85,9 +88,18 @@ export const processMatching = (mainData, comparativeDatasets, metadataRules, ma
       const mainVal = String(mainRow[mainKey]).trim().toLowerCase();
       
       if (compValuesSet.has(mainVal)) {
-        // Matched, so it's eliminated
-        eliminatedCount++;
-        eliminationDetails[index].eliminated++;
+        if (processingMode === 'integration') {
+          if (mainRow.is_integrated === 0) {
+            eliminatedCount++;
+          }
+          mainRow.is_integrated = 1;
+          eliminationDetails[index].eliminated++;
+          newValidData.push(mainRow);
+        } else {
+          // Matched, so it's eliminated
+          eliminatedCount++;
+          eliminationDetails[index].eliminated++;
+        }
       } else {
         // Not matched, keep it
         newValidData.push(mainRow);

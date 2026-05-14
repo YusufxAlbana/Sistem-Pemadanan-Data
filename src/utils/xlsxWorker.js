@@ -19,6 +19,6 @@ self.onmessage = (e) => {
       columns: columns
     });
   } catch (err) {
-    self.postMessage({ error: err.message });
+    self.postMessage({ error: err ? (err.message || err.toString()) : "Unknown parsing error" });
   }
 };

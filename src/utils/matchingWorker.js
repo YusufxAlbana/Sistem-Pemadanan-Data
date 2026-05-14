@@ -2,7 +2,7 @@
 
 self.onmessage = (e) => {
   try {
-    const { mainData, comparativeDatasets, metadataRules, mainKey, compKeys } = e.data;
+    const { mainData, comparativeDatasets, metadataRules, mainKey, compKeys, processingMode } = e.data;
     
     if (!mainData || mainData.length === 0) {
       self.postMessage({ validData: [], eliminatedCount: 0, eliminationDetails: [], logicErrors: [], resultColumns: [] });
@@ -10,16 +10,24 @@ self.onmessage = (e) => {
     }
 
     let validData = [...mainData];
-    let eliminatedCount = 0;
+    let eliminatedCount = 0; // In integration mode, this counts how many were integrated
     const logicErrors = [];
     let resultColumns = Object.keys(mainData[0] || {});
     
+    if (processingMode === 'integration' && !resultColumns.includes('is_integrated')) {
+      resultColumns.push('is_integrated');
+    }
+    
     const eliminationDetails = comparativeDatasets.map(ds => ({
       fileName: ds.fileName,
-      eliminated: 0
+      eliminated: 0 // In integration mode, counts matches for this dataset
     }));
 
-    // Logika Eliminasi
+    if (processingMode === 'integration') {
+      validData = validData.map(row => ({ ...row, is_integrated: 0 }));
+    }
+
+    // Logika Pencocokan
     comparativeDatasets.forEach((dataset, index) => {
       const compKeyForThisDataset = compKeys[dataset.fileName];
       if (!compKeyForThisDataset) return; // Skip if no key selected for this dataset
@@ -33,9 +41,18 @@ self.onmessage = (e) => {
         const mainVal = String(mainRow[mainKey]).trim().toLowerCase();
         
         if (compValuesSet.has(mainVal)) {
-          // Matched, so it's eliminated
-          eliminatedCount++;
-          eliminationDetails[index].eliminated++;
+          if (processingMode === 'integration') {
+            if (mainRow.is_integrated === 0) {
+              eliminatedCount++;
+            }
+            mainRow.is_integrated = 1;
+            eliminationDetails[index].eliminated++;
+            newValidData.push(mainRow);
+          } else {
+            // Matched, so it's eliminated
+            eliminatedCount++;
+            eliminationDetails[index].eliminated++;
+          }
         } else {
           // Not matched, keep it
           newValidData.push(mainRow);
