@@ -291,34 +291,38 @@ function App() {
                   Silakan pilih bagaimana sistem harus menangani data utama jika ditemukan kecocokan dengan data pembanding.
                 </p>
 
-                <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', width: '100%' }}>
-                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', cursor: 'pointer', padding: '1rem', border: processingMode === 'elimination' ? '2px solid var(--primary)' : '1px solid var(--border-color)', borderRadius: '8px', backgroundColor: processingMode === 'elimination' ? '#EFF6FF' : 'transparent', flex: '1', minWidth: '250px', transition: 'all 0.2s' }}>
+                <div className="radio-card-container">
+                  <label className={`radio-card ${processingMode === 'elimination' ? 'active-elimination' : ''}`}>
                     <input 
                       type="radio" 
                       name="processingModeTop" 
                       value="elimination" 
                       checked={processingMode === 'elimination'} 
                       onChange={(e) => { setProcessingMode(e.target.value); setProcessedResult(null); }}
-                      style={{ marginTop: '0.25rem' }}
                     />
-                    <div>
-                      <strong style={{ display: 'block', color: 'var(--text-main)', marginBottom: '0.25rem', fontSize: '1.05rem' }}>Mode Validasi (Eliminasi)</strong>
-                      <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Data utama yang terdeteksi ada di data pembanding akan <strong>dihapus/dieliminasi</strong> dari hasil akhir.</span>
+                    <div className="radio-indicator"></div>
+                    <div className="radio-content">
+                      <span className="radio-title">Mode Validasi (Eliminasi)</span>
+                      <span className="radio-description">
+                        Data utama yang terdeteksi ada di data pembanding akan <strong>dihapus/dieliminasi</strong> dari hasil akhir.
+                      </span>
                     </div>
                   </label>
                   
-                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', cursor: 'pointer', padding: '1rem', border: processingMode === 'integration' ? '2px solid #0EA5E9' : '1px solid var(--border-color)', borderRadius: '8px', backgroundColor: processingMode === 'integration' ? '#E0F2FE' : 'transparent', flex: '1', minWidth: '250px', transition: 'all 0.2s' }}>
+                  <label className={`radio-card ${processingMode === 'integration' ? 'active-integration' : ''}`}>
                     <input 
                       type="radio" 
                       name="processingModeTop" 
                       value="integration" 
                       checked={processingMode === 'integration'} 
                       onChange={(e) => { setProcessingMode(e.target.value); setProcessedResult(null); }}
-                      style={{ marginTop: '0.25rem' }}
                     />
-                    <div>
-                      <strong style={{ display: 'block', color: 'var(--text-main)', marginBottom: '0.25rem', fontSize: '1.05rem' }}>Mode Pemadanan (Integrasi)</strong>
-                      <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Semua data dipertahankan. Baris yang cocok akan diberi status khusus (<code style={{background: 'rgba(0,0,0,0.05)', padding: '2px 4px', borderRadius: '4px'}}>is_integrated</code>).</span>
+                    <div className="radio-indicator"></div>
+                    <div className="radio-content">
+                      <span className="radio-title">Mode Pemadanan (Integrasi)</span>
+                      <span className="radio-description">
+                        Semua data dipertahankan. Baris yang cocok akan diberi status khusus (<code style={{background: 'rgba(0,0,0,0.05)', padding: '2px 4px', borderRadius: '4px', fontSize: '0.8rem'}}>is_integrated</code>).
+                      </span>
                     </div>
                   </label>
                 </div>
