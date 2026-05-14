@@ -57,12 +57,13 @@ const InfoPage = () => {
         </p>
         
         <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', 
-          gap: '1.5rem' 
+          display: 'flex', 
+          flexWrap: 'wrap', 
+          gap: '1.5rem',
+          justifyContent: 'center'
         }}>
           {/* Tech Card 1 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', backgroundColor: '#F8FAFC', borderRadius: '12px' }}>
+          <div style={{ flex: '1 1 280px', maxWidth: '400px', display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', backgroundColor: '#F8FAFC', borderRadius: '12px' }}>
             <div style={{ color: 'var(--primary)', flexShrink: 0 }}><Code2 size={24} /></div>
             <div>
               <h5 style={{ margin: '0 0 0.25rem 0', fontSize: '1rem' }}>React 19 & Vite</h5>
@@ -71,7 +72,7 @@ const InfoPage = () => {
           </div>
 
           {/* Tech Card 2 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', backgroundColor: '#F8FAFC', borderRadius: '12px' }}>
+          <div style={{ flex: '1 1 280px', maxWidth: '400px', display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', backgroundColor: '#F8FAFC', borderRadius: '12px' }}>
             <div style={{ color: '#F59E0B', flexShrink: 0 }}><Zap size={24} /></div>
             <div>
               <h5 style={{ margin: '0 0 0.25rem 0', fontSize: '1rem' }}>Web Workers</h5>
@@ -80,7 +81,7 @@ const InfoPage = () => {
           </div>
 
           {/* Tech Card 3 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', backgroundColor: '#F8FAFC', borderRadius: '12px' }}>
+          <div style={{ flex: '1 1 280px', maxWidth: '400px', display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', backgroundColor: '#F8FAFC', borderRadius: '12px' }}>
             <div style={{ color: '#0EA5E9', flexShrink: 0 }}><Globe size={24} /></div>
             <div>
               <h5 style={{ margin: '0 0 0.25rem 0', fontSize: '1rem' }}>Client-Side Processing</h5>
@@ -89,7 +90,7 @@ const InfoPage = () => {
           </div>
 
           {/* Tech Card 4 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', backgroundColor: '#F8FAFC', borderRadius: '12px' }}>
+          <div style={{ flex: '1 1 280px', maxWidth: '400px', display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', backgroundColor: '#F8FAFC', borderRadius: '12px' }}>
             <div style={{ color: '#8B5CF6', flexShrink: 0 }}><Layout size={24} /></div>
             <div>
               <h5 style={{ margin: '0 0 0.25rem 0', fontSize: '1rem' }}>React Router 7</h5>
@@ -98,7 +99,7 @@ const InfoPage = () => {
           </div>
 
           {/* Tech Card 5 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', backgroundColor: '#F8FAFC', borderRadius: '12px' }}>
+          <div style={{ flex: '1 1 280px', maxWidth: '400px', display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', backgroundColor: '#F8FAFC', borderRadius: '12px' }}>
             <div style={{ color: '#10B981', flexShrink: 0 }}><BarChart3 size={24} /></div>
             <div>
               <h5 style={{ margin: '0 0 0.25rem 0', fontSize: '1rem' }}>Recharts & Lucide</h5>
@@ -107,7 +108,7 @@ const InfoPage = () => {
           </div>
 
           {/* Tech Card 6 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', backgroundColor: '#F8FAFC', borderRadius: '12px' }}>
+          <div style={{ flex: '1 1 280px', maxWidth: '400px', display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', backgroundColor: '#F8FAFC', borderRadius: '12px' }}>
             <div style={{ color: '#64748B', flexShrink: 0 }}><FileJson size={24} /></div>
             <div>
               <h5 style={{ margin: '0 0 0.25rem 0', fontSize: '1rem' }}>SheetJS & PapaParse</h5>
