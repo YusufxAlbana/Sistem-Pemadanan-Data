@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Routes, Route, NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { Settings2, ShieldCheck, Activity, BookOpen, LayoutDashboard, X, Info, MessageSquare } from 'lucide-react';
+import { Settings2, ShieldCheck, Activity, BookOpen, LayoutDashboard, X, Info, MessageSquare, User } from 'lucide-react';
 import FileUpload from './components/FileUpload';
 import DashboardStats from './components/DashboardStats';
 import DataTable from './components/DataTable';
@@ -8,6 +8,7 @@ import CustomDropdown from './components/CustomDropdown';
 import GuidePage from './components/GuidePage';
 import InfoPage from './components/InfoPage';
 import FeedbackPage from './components/FeedbackPage';
+import DeveloperPage from './components/DeveloperPage';
 import { parseFile, processMatching } from './utils/dataProcessor';
 
 function App() {
@@ -260,6 +261,14 @@ function App() {
             <MessageSquare size={20} />
             <span>Saran & Kritik</span>
           </NavLink>
+
+          <NavLink 
+            to="/developer"
+            className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
+          >
+            <User size={20} />
+            <span>Profil Developer</span>
+          </NavLink>
         </nav>
       </aside>
 
@@ -273,6 +282,7 @@ function App() {
                 {location.pathname === '/' ? 'Dashboard Pemadanan Data' : 
                  location.pathname === '/panduan' ? 'Panduan Penggunaan Sistem' : 
                  location.pathname === '/saran' ? 'Saran & Kritik' :
+                 location.pathname === '/developer' ? 'Profil Pengembang Sistem' :
                  'Tentang Sistem Pemadanan Data'}
               </h1>
               <p>
@@ -282,6 +292,8 @@ function App() {
                   ? 'Pelajari cara menggunakan sistem dan format file yang didukung.'
                   : location.pathname === '/saran'
                   ? 'Kirimkan masukan atau laporan bug langsung ke tim pengembang.'
+                  : location.pathname === '/developer'
+                  ? 'Kenali lebih dekat pengembang di balik sistem pemadanan data ini.'
                   : 'Pelajari latar belakang, visi, misi, dan berbagai skenario penggunaan sistem.'}
               </p>
             </div>
@@ -306,6 +318,7 @@ function App() {
           <Route path="/informasi" element={<InfoPage />} />
           <Route path="/panduan" element={<GuidePage />} />
           <Route path="/saran" element={<FeedbackPage />} />
+          <Route path="/developer" element={<DeveloperPage />} />
           <Route path="/" element={
             <>
             {/* Processing Mode Selection - Moved to Top */}
